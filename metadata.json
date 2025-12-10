@@ -1,0 +1,5 @@
+{
+  "name": "MonoSQL: AI ERD Generator",
+  "description": "A developer-focused, monochrome ERD generator that visualizes SQL dumps and provides AI-driven database optimization suggestions.",
+  "requestFramePermissions": []
+}
