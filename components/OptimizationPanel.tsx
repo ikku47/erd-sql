@@ -6,9 +6,11 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface OptimizationPanelProps {
   optimizations: OptimizationSuggestion[];
+  isAnalyzing?: boolean;
+  analysisStage?: string | null;
 }
 
-const OptimizationPanel: React.FC<OptimizationPanelProps> = ({ optimizations }) => {
+const OptimizationPanel: React.FC<OptimizationPanelProps> = ({ optimizations, isAnalyzing = false, analysisStage = null }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopy = async (text: string, id: string) => {
@@ -40,6 +42,49 @@ const OptimizationPanel: React.FC<OptimizationPanelProps> = ({ optimizations }) 
       default: return 'bg-[#3e3e42] text-[#cccccc]';
     }
   };
+
+  if (isAnalyzing) {
+    const getStageMessage = () => {
+      switch (analysisStage) {
+        case 'processing':
+          return 'Parsing SQL statements...';
+        case 'analyzing':
+          return 'Extracting schema relationships...';
+        case 'generating':
+          return 'Building visual diagram...';
+        case 'optimizing':
+          return 'Discovering optimization opportunities...';
+        case 'finalizing':
+          return 'Preparing final results...';
+        default:
+          return 'Analyzing your SQL...';
+      }
+    };
+
+    return (
+      <div className="h-full flex flex-col items-center justify-center text-[#858585] p-8 text-center font-mono">
+        <div className="mb-6">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="animate-spin mx-auto">
+            <circle
+              cx="24"
+              cy="24"
+              r="20"
+              fill="none"
+              stroke="#007acc"
+              strokeWidth="3"
+              strokeDasharray="40"
+              strokeDashoffset="20"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+        <p className="text-sm font-semibold text-[#cccccc] mb-2">{getStageMessage()}</p>
+        {analysisStage === 'analyzing' && (
+          <p className="text-xs text-[#858585] italic">Please be patient, this may take some time</p>
+        )}
+      </div>
+    );
+  }
 
   if (optimizations.length === 0) {
     return (

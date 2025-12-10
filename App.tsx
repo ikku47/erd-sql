@@ -17,6 +17,7 @@ import { Download, LayoutDashboard, BrainCircuit, Maximize } from 'lucide-react'
 import SqlEditor from './components/SqlEditor';
 import OptimizationPanel from './components/OptimizationPanel';
 import TableNode from './components/TableNode';
+import AnalysisOverlay from './components/AnalysisOverlay';
 import { analyzeSqlDump } from './services/geminiService';
 import { getLayoutedElements } from './utils/layout';
 import { useAppStore } from './store/useAppStore';
@@ -41,6 +42,8 @@ function App() {
     setActiveTab,
     isAnalyzing,
     setIsAnalyzing,
+    analysisStage,
+    setAnalysisStage,
   } = useAppStore();
 
   // React Flow state - initialize from store
@@ -100,8 +103,21 @@ function App() {
 
   const onAnalyze = async () => {
     setIsAnalyzing(true);
+    setActiveTab('diagram'); // Switch to diagram tab to show overlay
+    
     try {
+      // Stage 1: Processing SQL
+      setAnalysisStage('processing');
+      await new Promise(resolve => setTimeout(resolve, 300)); // Brief delay for visual feedback
+      
+      // Stage 2: Analyzing schema
+      setAnalysisStage('analyzing');
       const result = await analyzeSqlDump(sql);
+      
+      // Stage 3: Generating diagram
+      setAnalysisStage('generating');
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
       setAnalysisResult(result);
       
       // Transform schema to React Flow nodes/edges
@@ -124,7 +140,15 @@ function App() {
         labelBgStyle: { fill: '#1e1e1e', fillOpacity: 0.9 },
       }));
 
+      // Stage 4: Optimizing layout
+      setAnalysisStage('optimizing');
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
       const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(flowNodes, flowEdges);
+
+      // Stage 5: Finalizing
+      setAnalysisStage('finalizing');
+      await new Promise(resolve => setTimeout(resolve, 300));
 
       // Update both React Flow state and store
       setNodes(layoutedNodes);
@@ -132,7 +156,6 @@ function App() {
       setStoreNodes(layoutedNodes);
       setStoreEdges(layoutedEdges);
       hasInitialized.current = true; // Mark that we've initialized
-      setActiveTab('diagram');
       
       // Fit view after nodes are set, with padding to ensure all nodes are visible
       setTimeout(() => {
@@ -146,6 +169,7 @@ function App() {
       alert("Failed to analyze SQL. Please check the API key and file content.");
     } finally {
       setIsAnalyzing(false);
+      setAnalysisStage(null);
     }
   };
 
@@ -217,20 +241,50 @@ function App() {
           <div className="flex border-b border-[#3e3e42] bg-[#252526]">
             <button
               onClick={() => setActiveTab('diagram')}
-              className={`px-4 py-2 text-sm flex items-center gap-2 border-r border-[#3e3e42] transition-colors font-mono
+              className={`px-4 py-2 text-sm flex items-center gap-2 border-r border-[#3e3e42] transition-colors font-mono relative
                 ${activeTab === 'diagram' ? 'bg-[#1e1e1e] text-[#cccccc] border-b-2 border-[#007acc]' : 'bg-[#252526] text-[#858585] hover:bg-[#2a2d2e]'}
               `}
             >
               <LayoutDashboard size={14} /> Diagram
+              {isAnalyzing && (
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="ml-1 animate-spin">
+                  <circle
+                    cx="6"
+                    cy="6"
+                    r="4"
+                    fill="none"
+                    stroke="#007acc"
+                    strokeWidth="1.5"
+                    strokeDasharray="12"
+                    strokeDashoffset="6"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
             </button>
             <button
               onClick={() => setActiveTab('optimizations')}
-              className={`px-4 py-2 text-sm flex items-center gap-2 border-r border-[#3e3e42] transition-colors font-mono
+              className={`px-4 py-2 text-sm flex items-center gap-2 border-r border-[#3e3e42] transition-colors font-mono relative
                 ${activeTab === 'optimizations' ? 'bg-[#1e1e1e] text-[#cccccc] border-b-2 border-[#007acc]' : 'bg-[#252526] text-[#858585] hover:bg-[#2a2d2e]'}
               `}
             >
               <BrainCircuit size={14} /> AI Optimization Report
-              {analysisResult && (
+              {isAnalyzing && (
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="ml-1 animate-spin">
+                  <circle
+                    cx="6"
+                    cy="6"
+                    r="4"
+                    fill="none"
+                    stroke="#007acc"
+                    strokeWidth="1.5"
+                    strokeDasharray="12"
+                    strokeDashoffset="6"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+              {analysisResult && !isAnalyzing && (
                 <span className="ml-1 bg-[#007acc] text-white text-[10px] px-1.5 border-0">
                   {analysisResult.optimizations.length}
                 </span>
@@ -241,7 +295,7 @@ function App() {
           {/* Tab Content */}
           <div className="flex-1 relative overflow-hidden">
             {activeTab === 'diagram' ? (
-              <div className="h-full w-full" ref={reactFlowWrapper}>
+              <div className="h-full w-full relative" ref={reactFlowWrapper}>
                  <ReactFlowProvider>
                   <ReactFlow
                     nodes={nodes}
@@ -272,9 +326,14 @@ function App() {
                     </Panel>
                   </ReactFlow>
                 </ReactFlowProvider>
+                <AnalysisOverlay stage={analysisStage} />
               </div>
             ) : (
-              <OptimizationPanel optimizations={analysisResult?.optimizations || []} />
+              <OptimizationPanel 
+                optimizations={analysisResult?.optimizations || []} 
+                isAnalyzing={isAnalyzing}
+                analysisStage={analysisStage}
+              />
             )}
           </div>
         </div>

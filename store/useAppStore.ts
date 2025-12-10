@@ -25,6 +25,8 @@ interface AppState {
   // Analysis state
   isAnalyzing: boolean;
   setIsAnalyzing: (isAnalyzing: boolean) => void;
+  analysisStage: string | null;
+  setAnalysisStage: (stage: string | null) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -51,6 +53,8 @@ export const useAppStore = create<AppState>()(
       // Analysis state (not persisted)
       isAnalyzing: false,
       setIsAnalyzing: (isAnalyzing: boolean) => set({ isAnalyzing }),
+      analysisStage: null,
+      setAnalysisStage: (stage: string | null) => set({ analysisStage: stage }),
     }),
     {
       name: 'monosql-storage',
