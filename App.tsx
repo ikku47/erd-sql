@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 import ReactFlow, { 
   Node, 
   Edge, 
@@ -19,7 +19,7 @@ import OptimizationPanel from './components/OptimizationPanel';
 import TableNode from './components/TableNode';
 import { analyzeSqlDump } from './services/geminiService';
 import { getLayoutedElements } from './utils/layout';
-import { AnalysisResult } from './types';
+import { useAppStore } from './store/useAppStore';
 
 // Define custom node types
 const nodeTypes = {
@@ -27,15 +27,76 @@ const nodeTypes = {
 };
 
 function App() {
-  const [sql, setSql] = useState<string>('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'diagram' | 'optimizations'>('diagram');
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-  
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  // Zustand store
+  const {
+    sql,
+    setSql,
+    analysisResult,
+    setAnalysisResult,
+    nodes: storeNodes,
+    edges: storeEdges,
+    setNodes: setStoreNodes,
+    setEdges: setStoreEdges,
+    activeTab,
+    setActiveTab,
+    isAnalyzing,
+    setIsAnalyzing,
+  } = useAppStore();
+
+  // React Flow state - initialize from store
+  const [nodes, setNodes, onNodesChange] = useNodesState(storeNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(storeEdges);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const reactFlowInstance = useRef<any>(null);
+  const hasInitialized = useRef(false);
+
+  // Initialize React Flow state from store when store has data (handles hydration from localStorage)
+  useEffect(() => {
+    if (!hasInitialized.current && (storeNodes.length > 0 || storeEdges.length > 0)) {
+      setNodes(storeNodes);
+      setEdges(storeEdges);
+      hasInitialized.current = true;
+    }
+  }, [storeNodes, storeEdges, setNodes, setEdges]);
+
+  // Sync store with React Flow state when nodes/edges change (debounced to avoid too many writes)
+  useEffect(() => {
+    if (!hasInitialized.current) return;
+    const timeoutId = setTimeout(() => {
+      setStoreNodes(nodes);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [nodes, setStoreNodes]);
+
+  useEffect(() => {
+    if (!hasInitialized.current) return;
+    const timeoutId = setTimeout(() => {
+      setStoreEdges(edges);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [edges, setStoreEdges]);
+
+  // Fit view when nodes are restored from storage
+  useEffect(() => {
+    if (nodes.length > 0 && reactFlowInstance.current) {
+      setTimeout(() => {
+        if (reactFlowInstance.current) {
+          reactFlowInstance.current.fitView({ padding: 0.2, includeHiddenNodes: false });
+        }
+      }, 100);
+    }
+  }, [nodes.length]);
+
+  const onNodesInit = useCallback((instance: any) => {
+    reactFlowInstance.current = instance;
+    // Fit view if we have nodes from storage
+    if (nodes.length > 0) {
+      setTimeout(() => {
+        instance.fitView({ padding: 0.2, includeHiddenNodes: false });
+      }, 100);
+    }
+  }, [nodes.length]);
 
   const onAnalyze = async () => {
     setIsAnalyzing(true);
@@ -65,9 +126,20 @@ function App() {
 
       const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(flowNodes, flowEdges);
 
+      // Update both React Flow state and store
       setNodes(layoutedNodes);
       setEdges(layoutedEdges);
+      setStoreNodes(layoutedNodes);
+      setStoreEdges(layoutedEdges);
+      hasInitialized.current = true; // Mark that we've initialized
       setActiveTab('diagram');
+      
+      // Fit view after nodes are set, with padding to ensure all nodes are visible
+      setTimeout(() => {
+        if (reactFlowInstance.current) {
+          reactFlowInstance.current.fitView({ padding: 0.2, includeHiddenNodes: false });
+        }
+      }, 100);
 
     } catch (error) {
       console.error("Analysis failed", error);
@@ -78,20 +150,37 @@ function App() {
   };
 
   const onExport = useCallback(() => {
-    if (reactFlowWrapper.current === null) {
+    if (reactFlowWrapper.current === null || reactFlowInstance.current === null) {
       return;
     }
 
-    toPng(reactFlowWrapper.current, { cacheBust: true, backgroundColor: '#1e1e1e' })
-      .then((dataUrl) => {
-        const link = document.createElement('a');
-        link.download = 'monosql-erd.png';
-        link.href = dataUrl;
-        link.click();
-      })
-      .catch((err) => {
-        console.error("Failed to export", err);
-      });
+    // Fit view before export to ensure all nodes are visible
+    reactFlowInstance.current.fitView({ padding: 0.2, includeHiddenNodes: false });
+    
+    // Wait for fitView to complete, then export
+    setTimeout(() => {
+      if (reactFlowWrapper.current) {
+        toPng(reactFlowWrapper.current, { 
+          cacheBust: true, 
+          backgroundColor: '#1e1e1e',
+          filter: (node) => {
+            // Exclude ReactFlow controls and attribution
+            if (node.classList?.contains('react-flow__controls')) return false;
+            if (node.classList?.contains('react-flow__attribution')) return false;
+            return true;
+          }
+        })
+          .then((dataUrl) => {
+            const link = document.createElement('a');
+            link.download = 'monosql-erd.png';
+            link.href = dataUrl;
+            link.click();
+          })
+          .catch((err) => {
+            console.error("Failed to export", err);
+          });
+      }
+    }, 300);
   }, [reactFlowWrapper]);
 
   return (
@@ -159,9 +248,13 @@ function App() {
                     edges={edges}
                     onNodesChange={onNodesChange}
                     onEdgesChange={onEdgesChange}
+                    onInit={onNodesInit}
                     nodeTypes={nodeTypes}
                     connectionMode={ConnectionMode.Loose}
+                    minZoom={0.01}
+                    maxZoom={4}
                     fitView
+                    fitViewOptions={{ padding: 0.2 }}
                     attributionPosition="bottom-right"
                   >
                     <Background color="#2d2d30" gap={20} size={1} />
