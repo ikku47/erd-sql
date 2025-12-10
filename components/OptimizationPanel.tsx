@@ -1,6 +1,8 @@
 import React from 'react';
 import { OptimizationSuggestion } from '../types';
 import { AlertTriangle, Zap, Shield, Database, Archive } from 'lucide-react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface OptimizationPanelProps {
   optimizations: OptimizationSuggestion[];
@@ -57,9 +59,21 @@ const OptimizationPanel: React.FC<OptimizationPanelProps> = ({ optimizations }) 
           {opt.sqlCode && (
             <div className="mt-2">
               <div className="text-xs font-bold mb-1 uppercase text-gray-500">Suggested Query:</div>
-              <pre className="bg-neutral-900 text-neutral-100 p-3 text-xs overflow-x-auto border-2 border-black font-mono">
-                <code>{opt.sqlCode}</code>
-              </pre>
+              <div className="border-2 border-black overflow-hidden">
+                <SyntaxHighlighter
+                  language="sql"
+                  style={vscDarkPlus}
+                  customStyle={{
+                    margin: 0,
+                    padding: '12px',
+                    fontSize: '12px',
+                    borderRadius: 0,
+                  }}
+                  showLineNumbers={false}
+                >
+                  {opt.sqlCode}
+                </SyntaxHighlighter>
+              </div>
             </div>
           )}
         </div>

@@ -1,5 +1,9 @@
 import React from 'react';
 import { FileCode, Upload, Play } from 'lucide-react';
+import Editor from 'react-simple-code-editor';
+import { highlight, languages } from 'prismjs';
+import 'prismjs/components/prism-sql';
+import 'prismjs/themes/prism.css';
 
 interface SqlEditorProps {
   sql: string;
@@ -39,13 +43,23 @@ const SqlEditor: React.FC<SqlEditorProps> = ({ sql, setSql, onAnalyze, isAnalyzi
         </div>
       </div>
       
-      <div className="flex-1 relative">
-        <textarea
-          className="w-full h-full p-4 font-mono text-sm resize-none focus:outline-none"
-          placeholder="Paste your SQL dump here or upload a file..."
+      <div className="flex-1 relative overflow-auto">
+        <Editor
           value={sql}
-          onChange={(e) => setSql(e.target.value)}
-          spellCheck={false}
+          onValueChange={setSql}
+          highlight={(code) => highlight(code, languages.sql, 'sql')}
+          padding={16}
+          placeholder="Paste your SQL dump here or upload a file..."
+          style={{
+            fontFamily: 'monospace',
+            fontSize: 14,
+            minHeight: '100%',
+            width: '100%',
+            outline: 'none',
+            background: 'white',
+          }}
+          textareaClassName="outline-none w-full h-full resize-none"
+          preClassName="m-0"
         />
       </div>
 

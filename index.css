@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+body {
+    font-family: 'JetBrains Mono', monospace;
+    background-color: #ffffff;
+    color: #000000;
+  }
+  /* Custom scrollbar for that raw dev feel */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #000;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #333;
+  }
