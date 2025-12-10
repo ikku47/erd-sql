@@ -12,7 +12,7 @@ import ReactFlow, {
 } from 'reactflow';
 // import 'reactflow/dist/style.css'; // Removed: Loaded via index.html to prevent ESM import error
 import { toPng } from 'html-to-image';
-import { Download, LayoutDashboard, BrainCircuit, Maximize } from 'lucide-react';
+import { Download, LayoutDashboard, BrainCircuit, Maximize, Github } from 'lucide-react';
 
 import SqlEditor from './components/SqlEditor';
 import OptimizationPanel from './components/OptimizationPanel';
@@ -215,10 +215,25 @@ function App() {
           <div className="bg-[#007acc] text-white p-2">
             <LayoutDashboard size={20} />
           </div>
-          <h1 className="text-lg font-semibold tracking-tight text-[#cccccc]">MonoSQL</h1>
+          <div className="flex flex-col">
+            <h1 className="text-lg font-semibold tracking-tight text-[#cccccc]">MonoSQL</h1>
+            <span className="text-[10px] text-[#858585] font-mono">open source</span>
+          </div>
         </div>
-        <div className="text-xs text-[#858585] hidden md:block">
-          AI-Powered ERD Generator
+        <div className="flex items-center gap-4">
+          <div className="text-xs text-[#858585] hidden md:block">
+            AI-Powered ERD Generator
+          </div>
+          <a
+            href="https://github.com/ikku47/erd-sql"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3 py-1.5 text-[#cccccc] hover:text-white hover:bg-[#3e3e42] transition-colors border border-[#3e3e42] hover:border-[#007acc]"
+            title="Star on GitHub"
+          >
+            <Github size={18} />
+            <span className="text-xs font-mono hidden sm:inline">Star</span>
+          </a>
         </div>
       </header>
 
