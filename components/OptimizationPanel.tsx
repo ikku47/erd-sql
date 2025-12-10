@@ -19,47 +19,48 @@ const OptimizationPanel: React.FC<OptimizationPanelProps> = ({ optimizations }) 
     }
   };
 
+
   const getImpactColor = (impact: string) => {
     switch (impact) {
-      case 'High': return 'bg-black text-white';
-      case 'Medium': return 'bg-gray-500 text-white';
-      case 'Low': return 'bg-gray-200 text-black border border-black';
-      default: return 'bg-white text-black border border-black';
+      case 'High': return 'bg-[#f48771] text-white';
+      case 'Medium': return 'bg-[#cea262] text-white';
+      case 'Low': return 'bg-[#89d185] text-[#1e1e1e]';
+      default: return 'bg-[#3e3e42] text-[#cccccc]';
     }
   };
 
   if (optimizations.length === 0) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-gray-400 p-8 text-center">
-        <Database size={48} strokeWidth={1} className="mb-4" />
-        <p>No optimizations generated yet. Analyze a SQL file to see suggestions.</p>
+      <div className="h-full flex flex-col items-center justify-center text-[#858585] p-8 text-center font-mono">
+        <Database size={48} strokeWidth={1} className="mb-4 text-[#6a6a6a]" />
+        <p className="text-sm">No optimizations generated yet. Analyze a SQL file to see suggestions.</p>
       </div>
     );
   }
 
   return (
-    <div className="h-full overflow-y-auto p-4 space-y-4 bg-neutral-50">
+    <div className="h-full overflow-y-auto p-4 space-y-3 bg-[#1e1e1e]">
       {optimizations.map((opt) => (
-        <div key={opt.id} className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div key={opt.id} className="bg-[#252526] border border-[#3e3e42] p-4">
           <div className="flex justify-between items-start mb-2">
             <div className="flex items-center gap-2">
-              <span className="p-1 border border-black bg-neutral-100">
+              <span className="p-1.5 border border-[#3e3e42] bg-[#1e1e1e] text-[#cccccc]">
                 {getIcon(opt.category)}
               </span>
-              <span className="font-bold uppercase text-sm tracking-wide">{opt.category}</span>
+              <span className="font-semibold text-sm text-[#cccccc] font-mono">{opt.category}</span>
             </div>
-            <span className={`text-[10px] uppercase font-bold px-2 py-1 ${getImpactColor(opt.impact)}`}>
+            <span className={`text-[10px] font-semibold px-2 py-1 border-0 font-mono ${getImpactColor(opt.impact)}`}>
               {opt.impact} Impact
             </span>
           </div>
           
-          <h3 className="font-bold text-lg mb-2">{opt.title}</h3>
-          <p className="text-sm text-gray-600 mb-4 leading-relaxed">{opt.description}</p>
+          <h3 className="font-semibold text-base mb-2 text-[#cccccc] font-mono">{opt.title}</h3>
+          <p className="text-sm text-[#858585] mb-4 leading-relaxed font-mono">{opt.description}</p>
           
           {opt.sqlCode && (
             <div className="mt-2">
-              <div className="text-xs font-bold mb-1 uppercase text-gray-500">Suggested Query:</div>
-              <div className="border-2 border-black overflow-hidden">
+              <div className="text-xs font-semibold mb-1.5 text-[#858585] font-mono">Suggested Query:</div>
+              <div className="border border-[#3e3e42] overflow-hidden">
                 <SyntaxHighlighter
                   language="sql"
                   style={vscDarkPlus}
@@ -68,6 +69,7 @@ const OptimizationPanel: React.FC<OptimizationPanelProps> = ({ optimizations }) 
                     padding: '12px',
                     fontSize: '12px',
                     borderRadius: 0,
+                    fontFamily: "'Consolas', 'Courier New', 'Monaco', 'Menlo', monospace",
                   }}
                   showLineNumbers={false}
                 >

@@ -1,21 +1,29 @@
 @import "tailwindcss";
 
 body {
-    font-family: 'JetBrains Mono', monospace;
-    background-color: #ffffff;
-    color: #000000;
+    font-family: 'Consolas', 'Courier New', 'Monaco', 'Menlo', monospace;
+    background-color: #1e1e1e;
+    color: #cccccc;
+    margin: 0;
+    padding: 0;
   }
-  /* Custom scrollbar for that raw dev feel */
+
+  /* VS Code style scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: #1e1e1e;
   }
   ::-webkit-scrollbar-thumb {
-    background: #000;
+    background: #424242;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #333;
+    background: #4e4e4e;
+  }
+
+  /* Remove all rounded corners globally */
+  * {
+    border-radius: 0 !important;
   }

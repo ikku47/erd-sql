@@ -5,11 +5,11 @@ import { Key, Link, Columns } from 'lucide-react';
 
 const TableNode = ({ data }: { data: TableNodeData }) => {
   return (
-    <div className="bg-white border-2 border-black min-w-[250px] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+    <div className="bg-[#252526] border border-[#3e3e42] min-w-[250px]">
       {/* Header */}
-      <div className="bg-black text-white p-2 font-bold border-b-2 border-black flex items-center justify-between">
-        <span className="uppercase tracking-wider truncate">{data.label}</span>
-        <Columns size={14} />
+      <div className="bg-[#007acc] text-white p-2 font-semibold border-b border-[#3e3e42] flex items-center justify-between font-mono">
+        <span className="text-sm truncate">{data.label}</span>
+        <Columns size={12} />
       </div>
 
       {/* Columns */}
@@ -17,20 +17,20 @@ const TableNode = ({ data }: { data: TableNodeData }) => {
         {data.columns.map((col, index) => (
           <div 
             key={index} 
-            className="flex items-center justify-between p-2 border-b border-black last:border-b-0 hover:bg-neutral-100 transition-colors text-sm group"
+            className="flex items-center justify-between p-2 border-b border-[#3e3e42] last:border-b-0 hover:bg-[#2a2d2e] transition-colors text-sm group font-mono"
           >
             <div className="flex items-center gap-2 overflow-hidden">
-              <span className="text-black group-hover:font-bold transition-all">
+              <span className="text-[#cccccc] group-hover:text-white transition-colors text-xs">
                 {col.name}
               </span>
-              {col.isPk && <Key size={12} className="text-black fill-current" />}
-              {col.isFk && <Link size={12} className="text-gray-500" />}
+              {col.isPk && <Key size={10} className="text-[#4ec9b0] fill-current" />}
+              {col.isFk && <Link size={10} className="text-[#569cd6]" />}
             </div>
-            <span className="text-xs text-gray-500 font-mono ml-4">{col.type}</span>
+            <span className="text-xs text-[#858585] ml-4">{col.type}</span>
             
             {/* Handles for connections - simplified to left/right for now */}
-            <Handle type="target" position={Position.Left} className="!w-2 !h-2 !bg-black !rounded-none !border-0" style={{ left: -5, top: '50%' }} />
-            <Handle type="source" position={Position.Right} className="!w-2 !h-2 !bg-black !rounded-none !border-0" style={{ right: -5, top: '50%' }} />
+            <Handle type="target" position={Position.Left} className="!w-2 !h-2 !bg-[#007acc] !border-0" style={{ left: -5, top: '50%' }} />
+            <Handle type="source" position={Position.Right} className="!w-2 !h-2 !bg-[#007acc] !border-0" style={{ right: -5, top: '50%' }} />
           </div>
         ))}
       </div>

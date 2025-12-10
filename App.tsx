@@ -58,9 +58,9 @@ function App() {
         label: rel.type,
         type: 'smoothstep',
         animated: true,
-        style: { stroke: '#000', strokeWidth: 2 },
-        labelStyle: { fill: '#000', fontWeight: 700, fontFamily: 'monospace' },
-        labelBgStyle: { fill: '#fff', fillOpacity: 0.8 },
+        style: { stroke: '#007acc', strokeWidth: 2 },
+        labelStyle: { fill: '#cccccc', fontWeight: 600, fontFamily: "'Consolas', 'Courier New', 'Monaco', 'Menlo', monospace" },
+        labelBgStyle: { fill: '#1e1e1e', fillOpacity: 0.9 },
       }));
 
       const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(flowNodes, flowEdges);
@@ -82,7 +82,7 @@ function App() {
       return;
     }
 
-    toPng(reactFlowWrapper.current, { cacheBust: true, backgroundColor: '#ffffff' })
+    toPng(reactFlowWrapper.current, { cacheBust: true, backgroundColor: '#1e1e1e' })
       .then((dataUrl) => {
         const link = document.createElement('a');
         link.download = 'monosql-erd.png';
@@ -95,16 +95,16 @@ function App() {
   }, [reactFlowWrapper]);
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-white text-black font-mono">
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-[#1e1e1e] text-[#cccccc] font-mono">
       {/* Header */}
-      <header className="flex justify-between items-center p-4 border-b-2 border-black bg-white z-10">
+      <header className="flex justify-between items-center p-3 border-b border-[#3e3e42] bg-[#252526] z-10">
         <div className="flex items-center gap-3">
-          <div className="bg-black text-white p-2">
-            <LayoutDashboard size={24} />
+          <div className="bg-[#007acc] text-white p-2">
+            <LayoutDashboard size={20} />
           </div>
-          <h1 className="text-2xl font-bold tracking-tighter uppercase">MonoSQL</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-[#cccccc]">MonoSQL</h1>
         </div>
-        <div className="text-xs font-bold text-gray-500 uppercase hidden md:block">
+        <div className="text-xs text-[#858585] hidden md:block">
           AI-Powered ERD Generator
         </div>
       </header>
@@ -112,7 +112,7 @@ function App() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Panel: SQL Input */}
-        <div className="w-1/3 min-w-[350px] max-w-[600px] h-full z-10">
+        <div className="w-1/3 min-w-[350px] max-w-[600px] h-full z-10 border-r border-[#3e3e42]">
           <SqlEditor 
             sql={sql} 
             setSql={setSql} 
@@ -122,27 +122,27 @@ function App() {
         </div>
 
         {/* Right Panel: Visualization & Report */}
-        <div className="flex-1 flex flex-col h-full relative bg-neutral-100">
+        <div className="flex-1 flex flex-col h-full relative bg-[#1e1e1e]">
           
           {/* Tabs */}
-          <div className="flex border-b-2 border-black bg-white">
+          <div className="flex border-b border-[#3e3e42] bg-[#252526]">
             <button
               onClick={() => setActiveTab('diagram')}
-              className={`px-6 py-3 font-bold uppercase text-sm flex items-center gap-2 border-r border-black hover:bg-neutral-100 transition-colors
-                ${activeTab === 'diagram' ? 'bg-black text-white' : 'bg-white text-black'}
+              className={`px-4 py-2 text-sm flex items-center gap-2 border-r border-[#3e3e42] transition-colors font-mono
+                ${activeTab === 'diagram' ? 'bg-[#1e1e1e] text-[#cccccc] border-b-2 border-[#007acc]' : 'bg-[#252526] text-[#858585] hover:bg-[#2a2d2e]'}
               `}
             >
-              <LayoutDashboard size={16} /> Diagram
+              <LayoutDashboard size={14} /> Diagram
             </button>
             <button
               onClick={() => setActiveTab('optimizations')}
-              className={`px-6 py-3 font-bold uppercase text-sm flex items-center gap-2 border-r border-black hover:bg-neutral-100 transition-colors
-                ${activeTab === 'optimizations' ? 'bg-black text-white' : 'bg-white text-black'}
+              className={`px-4 py-2 text-sm flex items-center gap-2 border-r border-[#3e3e42] transition-colors font-mono
+                ${activeTab === 'optimizations' ? 'bg-[#1e1e1e] text-[#cccccc] border-b-2 border-[#007acc]' : 'bg-[#252526] text-[#858585] hover:bg-[#2a2d2e]'}
               `}
             >
-              <BrainCircuit size={16} /> AI Optimization Report
+              <BrainCircuit size={14} /> AI Optimization Report
               {analysisResult && (
-                <span className="ml-1 bg-white text-black text-[10px] px-1.5 rounded-none border border-black">
+                <span className="ml-1 bg-[#007acc] text-white text-[10px] px-1.5 border-0">
                   {analysisResult.optimizations.length}
                 </span>
               )}
@@ -164,17 +164,17 @@ function App() {
                     fitView
                     attributionPosition="bottom-right"
                   >
-                    <Background color="#000" gap={20} size={1} />
+                    <Background color="#2d2d30" gap={20} size={1} />
                     <Controls 
-                      className="!bg-white !border-2 !border-black !shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" 
+                      className="!bg-[#252526] !border !border-[#3e3e42]" 
                       showInteractive={false} 
                     />
                     <Panel position="top-right">
                        <button 
                         onClick={onExport}
-                        className="bg-white border-2 border-black px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all flex items-center gap-2 uppercase text-xs"
+                        className="bg-[#0e639c] hover:bg-[#1177bb] text-white px-3 py-1.5 text-xs flex items-center gap-2 border-0 transition-colors font-mono"
                       >
-                        <Download size={14} /> Export PNG
+                        <Download size={12} /> Export PNG
                       </button>
                     </Panel>
                   </ReactFlow>
